@@ -10,10 +10,12 @@
  */
 
 /**
- * To-do's:
+ * To-dos:
  *
- * add alternate title functionality
+ * Make widget alias drop-down's auto-update when other widgets are added/removed/saved.
+ * 
  */
+
 
 // Make sure we don't expose any info if called directly
 if ( !function_exists( 'add_action' ) ) {
@@ -49,6 +51,9 @@ add_action( 'widgets_init', 'wa_init' );
  */
 class WidgetAlias extends WP_Widget {
     
+    // Object variables
+    public $override_title, $alias_id;
+
     /**
      * PHP5 constructor - initializes widget and sets defaults
      *
@@ -136,7 +141,7 @@ class WidgetAlias extends WP_Widget {
         
         <!-- Title -->
         <p>  
-            <label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Alternate Title:', 'widget-alias'); ?></label>  
+            <label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Override Title:', 'widget-alias'); ?></label>  
             <input type="text" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $instance['title']; ?>" class="widefat" />
         </p>
 
@@ -235,18 +240,24 @@ class WidgetAlias extends WP_Widget {
             elseif ( is_object($cn) )
                 $classname_ .= '_' . get_class($cn);
         }
-        $classname_ = ltrim($classname_, '_');
+        $classname_ = ltrim($classname_, '_') . ' widget-alias';
         $params[0]['before_widget'] = sprintf( $params[0]['before_widget'], $alias_widget_id, $classname_ );
+
+        // Add widget alias identifier for use in later title filter
+        $params[0]['class'] = 'widget-alias ' . $params[0]['class'];
 
         // Apply filters
         $params = apply_filters( 'dynamic_sidebar_params', $params );
 
         // Run actions
         do_action( 'dynamic_sidebar', $alias_widget );
-
-        // Modify title if alternate title is set
-        if ( !empty( $instance['title'] ) )
-            add_filter( 'widget_title', array( &$this, 'output_alternate_title'), 99 );
+                
+        // Modify title if override title is set
+        if ( !empty( $instance['title'] ) ) {
+            $this->override_title = $instance['title'];
+            $this->alias_id = $alias_widget_id;
+            add_filter( 'widget_display_callback', array( &$this, 'output_override_title'), 99, 3 );
+        }
 
         // Do actual widget
         if ( is_callable( $callback ) )
@@ -256,8 +267,25 @@ class WidgetAlias extends WP_Widget {
 
     }
 
-    function output_alternate_title( $title ) {
-        return $title;
+    /**
+     * Override the aliased widgets title
+     *
+     * @package Widget Alias
+     * @since   1.0
+     *
+     * @param   array $instance settings for this particular instance of the widget
+     * @param   array $widget the widget object
+     * @param   array $args widget container args
+     *
+     * @return  $instance
+     */
+    function output_override_title( $instance, $widget, $args ) {
+              
+        // Test if widget has specail 'widget-alias' class $arg and if the widget's id matches the alias id                
+        if( false !== strpos( $args['class'], 'widget') && $this->alias_id == $widget->id )
+            $instance['title'] = $this->override_title;
+
+        return $instance;
 
     }
 
