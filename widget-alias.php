@@ -26,6 +26,13 @@ if ( !function_exists( 'add_action' ) ) {
 // Definitions
 define( 'WA_PLUGIN_NAME', 'Widget Alias' );
 
+function enqueue_admin_scripts() {
+
+    wp_enqueue_script( 'widget-alias-jquery', plugin_dir_url( __FILE__ ) . 'lib/js/widget-alias.js' );
+
+}
+add_action( 'admin_enqueue_scripts','enqueue_admin_scripts' );
+
 /**
  * Registers widget and loads plugin text domain
  *
@@ -61,30 +68,24 @@ class WidgetAlias extends WP_Widget {
      * @since   1.0
      */
     public function __construct() {
+        
         // Set widget options
         $widget_options = array(
             'classname' => 'widget-alias',
             'description' => __('An alias widget to reproduce the output of an existing widget.', 'widget-alias') );
-            parent::WP_Widget('wa', __('Widget Alias', 'widget-alias'), $widget_options
+            parent::WP_Widget('widget-alias', __('Widget Alias', 'widget-alias'), $widget_options
         );
 
-        // Set widget defaults
-        $this->defaults = array(
-            'title'                   => '',
-            'post_types'              => '',
-            'taxonomy'                => 'category',
-            'orderby'                 => 'date',
-            'order'                   => 'DESC',
-            'number_of_posts'         => -1,
-            'no_posts_action'         => 'hide',
-            'no_posts_message'        => __('No posts found', 'widget-alias'),
-            'post_heading_links'      => '',
-            'hide_post_type_headings' => '',
-            'term_heading_links'      => '',
-            'hide_term_headings'      => '',
-            'before_HTML'             => '',
-            'after_HTML'              => '',
-        );
+        // Add id's to widgets in admin for easy identification
+        add_action( 'sidebar_admin_setup', array( $this, 'add_admin_ids' ) );
+
+        // Add shortcode to output specific widget [wa title="title"]
+        add_shortcode( 'wa', array( $this, 'wa_shortcode' ) );
+
+        add_action( 'widget_form_callback', function( $instance ) {
+            $this->update_callback();
+            return $instance;
+        });
     }
     
     /**
@@ -100,7 +101,8 @@ class WidgetAlias extends WP_Widget {
         global $wp_registered_sidebars;
 
         // Map all undefined $instance properties to defaults
-        $instance = wp_parse_args( (array) $instance, $this->defaults );
+        if ( !empty( $this->defaults ) )
+            $instance = wp_parse_args( (array) $instance, $this->defaults );
 
         // Get all existing widgets
         $sidebar_widgets = get_option( 'sidebars_widgets' );
@@ -142,7 +144,7 @@ class WidgetAlias extends WP_Widget {
         <!-- Title -->
         <p>  
             <label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Override Title:', 'widget-alias'); ?></label>  
-            <input type="text" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo $instance['title']; ?>" class="widefat" />
+            <input type="text" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo !empty( $instance['title'] ) ? $instance['title'] : ''; ?>" class="widefat" />
         </p>
 
         <?php if ( !empty( $select ) ) : ?>
@@ -167,6 +169,7 @@ class WidgetAlias extends WP_Widget {
      * @param   array $old_instance the new widget settings
      */
     public function update( $new_instance, $old_instance ) {
+        
         // Sanitize title
         $new_instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
 
@@ -184,14 +187,16 @@ class WidgetAlias extends WP_Widget {
      */
     public function widget( $args, $instance ) {
 
-        global $wp_registered_sidebars;
-        global $wp_registered_widgets;
+        global $wp_registered_sidebars, $wp_registered_widgets;
+
+        // Get ID of this widget
+        $widget_id = $args['widget_id'];
 
         // Get ID of widget to alias
         $alias_widget_id = isset( $instance['alias-widget-id'] ) ? $instance['alias-widget-id'] : 'none';
 
         // Do nothing if set to 'none'
-        if ( 'none' == $alias_widget_id || $args['widget_id'] == $alias_widget_id)
+        if ( 'none' == $alias_widget_id )
             return false;
 
         // Do nothing if the aliased widget is no longer active
@@ -256,7 +261,7 @@ class WidgetAlias extends WP_Widget {
         if ( !empty( $instance['title'] ) ) {
             $this->override_title = $instance['title'];
             $this->alias_id = $alias_widget_id;
-            add_filter( 'widget_display_callback', array( &$this, 'output_override_title'), 99, 3 );
+            add_filter( 'widget_display_callback', array( $this, 'output_override_title'), 99, 3 );
         }
 
         // Do actual widget
@@ -287,6 +292,80 @@ class WidgetAlias extends WP_Widget {
 
         return $instance;
 
+    }
+
+    /**
+     * Output widget based on shortcode
+     *
+     * Example usage: [wa id="widget-id" title="Override Title"]
+     *
+     * @package Widget Alias
+     * @since   1.0
+     *
+     * @param   array $atts [description]
+     * @return  [type] [description]
+     */
+    function wa_shortcode( $atts ) {
+
+        extract( shortcode_atts( array(
+          'id' => '',
+          'title' => '',
+        ), $atts ) );
+
+        // Output widget with shortcode atts
+        if ( !empty( $id ) ) {
+            $instance = array(
+                'alias-widget-id' => $id,
+                'title' => $title,
+            );
+
+            $this->widget( '', $instance ); 
+        }
+
+    }
+
+    function add_admin_ids( $title ) {
+        
+        global $sidebars_widgets, $wp_registered_widget_controls, $wp_registered_widgets;
+        
+        
+        foreach ( $wp_registered_widgets as $widget_id => $widget_data ) {
+            
+            // Pass widget id as param, so that we can later call the original callback function
+            $wp_registered_widget_controls[$widget_id]['params'][]['widget_id'] = $widget_id;
+            
+            // Store the original callback functions and replace them with Widget Context
+            $wp_registered_widget_controls[$widget_id]['callback_original_wa'] = $wp_registered_widget_controls[$widget_id]['callback'];
+            $wp_registered_widget_controls[$widget_id]['callback'] = array($this, 'replace_widget_control_callback');
+        
+        }
+
+    }
+
+    function replace_widget_control_callback() {
+
+        global $wp_registered_widget_controls;
+        
+        $all_params = func_get_args();
+
+        if (is_array($all_params[1]))
+            $widget_id = $all_params[1]['widget_id'];
+        else
+            $widget_id = $all_params[0]['widget_id'];
+            
+        $original_callback = $wp_registered_widget_controls[$widget_id]['callback_original_wa'];
+        
+        // Output widget ID
+        echo '<div class="widget-alias-id"><b>ID: ' . $widget_id . '</b></div><br />';
+
+        // Display the original callback
+        if ( isset( $original_callback ) && is_callable( $original_callback ) ) {
+            call_user_func_array( $original_callback, $all_params );
+        } 
+        else {
+            echo '<!-- Widget Alias [controls]: could not call the original callback function -->';
+        }
+        
     }
 
 }
