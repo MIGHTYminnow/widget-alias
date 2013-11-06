@@ -12,7 +12,7 @@
 /**
  * To-dos:
  *
- * Make widget alias drop-down's auto-update when other widgets are added/removed/saved.
+ * Form isn't saving properly on newly added widget alias, might be duplicating other WA's needs investigating!
  * 
  */
 
@@ -32,6 +32,7 @@ define( 'WA_PLUGIN_NAME', 'Widget Alias' );
  */
 function enqueue_admin_scripts() {
 
+    wp_enqueue_style( 'widget-alias-css', plugin_dir_url( __FILE__ ) . 'lib/css/widget-alias.css' );
     wp_enqueue_script( 'widget-alias-jquery', plugin_dir_url( __FILE__ ) . 'lib/js/widget-alias.js' );
 
 }
@@ -80,16 +81,15 @@ class WidgetAlias extends WP_Widget {
             parent::WP_Widget('widget-alias', __('Widget Alias', 'widget-alias'), $widget_options
         );
 
-        // Add id's to widgets in admin for easy identification
-        add_action( 'sidebar_admin_setup', array( $this, 'add_admin_ids' ) );
-
         // Add shortcode to output specific widget [wa title="title"]
         add_shortcode( 'wa', array( $this, 'wa_shortcode' ) );
 
+        // Why is this here???
         add_action( 'widget_form_callback', function( $instance ) {
             $this->update_callback();
             return $instance;
         });
+
     }
     
     /**
@@ -132,7 +132,7 @@ class WidgetAlias extends WP_Widget {
 
             // Output <option> for each widget in sidebar (excluding this widget to avoid recursion)
             foreach( $widgets as $widget ) {
-                if ( $this->id != $widget )
+                if ( $this->id != $widget && !strstr( $widget, 'widget-alias' ) )
                     $widgets_output .= "\t" . '<option value="'. $widget . '"' . selected( !empty( $instance['alias-widget-id'] ) ? $instance['alias-widget-id'] : '', $widget, __return_false() ) . '>' . $widget . '</option>' . "\n";
             }
 
@@ -329,54 +329,6 @@ class WidgetAlias extends WP_Widget {
             $this->widget( '', $instance ); 
         }
 
-    }
-
-    function add_admin_ids( $title ) {
-        
-        global $sidebars_widgets, $wp_registered_widget_controls, $wp_registered_widgets;
-        
-        foreach ( $wp_registered_widgets as $widget_id => $widget_data ) {
-            
-            // Pass widget id as param, so that we can later call the original callback function
-            $wp_registered_widget_controls[$widget_id]['params'][]['widget_id'] = $widget_id;
-            
-            // Store the original callback functions and replace them with Widget Context
-            $wp_registered_widget_controls[$widget_id]['callback_original_wa'] = $wp_registered_widget_controls[$widget_id]['callback'];
-            $wp_registered_widget_controls[$widget_id]['callback'] = array($this, 'replace_widget_control_callback');
-        
-        }
-
-    }
-
-    function replace_widget_control_callback() {
-
-        global $wp_registered_widget_controls;
-        
-        $all_params = func_get_args();
-        //echo '<pre>' . print_r($wp_registered_widget_controls, true) . '</pre>';
-
-        if ( is_array($all_params[1] ) ) {
-            $widget_id = $all_params[1]['widget_id'];
-            $id_output = '<div class="widget-alias-id"><b>ID: ' . $widget_id . '</b></div><br />';
-        }
-        else {
-            $widget_id = $all_params[0]['widget_id'];
-            $id_output = '';
-        }
-            
-        $original_callback = $wp_registered_widget_controls[$widget_id]['callback_original_wa'];
-        
-        // Output widget ID
-        echo $id_output;
-
-        // Display the original callback
-        if ( isset( $original_callback ) && is_callable( $original_callback ) ) {
-            call_user_func_array( $original_callback, $all_params );
-        } 
-        else {
-            echo '<!-- Widget Alias [controls]: could not call the original callback function -->';
-        }
-        
     }
 
 }
