@@ -26,6 +26,10 @@ if ( !function_exists( 'add_action' ) ) {
 // Definitions
 define( 'WA_PLUGIN_NAME', 'Widget Alias' );
 
+
+/**
+ * Enqueue jQuery
+ */
 function enqueue_admin_scripts() {
 
     wp_enqueue_script( 'widget-alias-jquery', plugin_dir_url( __FILE__ ) . 'lib/js/widget-alias.js' );
@@ -120,6 +124,9 @@ class WidgetAlias extends WP_Widget {
         // Loop through each sidebar
         foreach ( $sidebar_widgets as $sidebar => $widgets ) {
           
+            if ( empty( $widgets ) )
+                continue;
+
             // Reset $sidebars_output and $widgets_output string variables
             $widgets_output = '';
 
@@ -328,7 +335,6 @@ class WidgetAlias extends WP_Widget {
         
         global $sidebars_widgets, $wp_registered_widget_controls, $wp_registered_widgets;
         
-        
         foreach ( $wp_registered_widgets as $widget_id => $widget_data ) {
             
             // Pass widget id as param, so that we can later call the original callback function
@@ -347,16 +353,21 @@ class WidgetAlias extends WP_Widget {
         global $wp_registered_widget_controls;
         
         $all_params = func_get_args();
+        //echo '<pre>' . print_r($wp_registered_widget_controls, true) . '</pre>';
 
-        if (is_array($all_params[1]))
+        if ( is_array($all_params[1] ) ) {
             $widget_id = $all_params[1]['widget_id'];
-        else
+            $id_output = '<div class="widget-alias-id"><b>ID: ' . $widget_id . '</b></div><br />';
+        }
+        else {
             $widget_id = $all_params[0]['widget_id'];
+            $id_output = '';
+        }
             
         $original_callback = $wp_registered_widget_controls[$widget_id]['callback_original_wa'];
         
         // Output widget ID
-        echo '<div class="widget-alias-id"><b>ID: ' . $widget_id . '</b></div><br />';
+        echo $id_output;
 
         // Display the original callback
         if ( isset( $original_callback ) && is_callable( $original_callback ) ) {
