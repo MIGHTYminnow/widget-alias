@@ -13,7 +13,7 @@
  * To-dos:
  *
  * Form isn't saving properly on newly added widget alias, might be duplicating other WA's needs investigating!
- * 
+ * Save isn't working with multiple wa :(
  */
 
 
@@ -150,7 +150,7 @@ class WidgetAlias extends WP_Widget {
         
         <!-- Title -->
         <p>  
-            <label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Override Title:', 'widget-alias'); ?></label>  
+            <label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e('Override title:', 'widget-alias'); ?></label>  
             <input type="text" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo !empty( $instance['title'] ) ? $instance['title'] : ''; ?>" class="widefat" />
         </p>
 
