@@ -4,7 +4,7 @@
  * Plugin URI:  http://mightyminnow.com
  * Description: Creates an alias widget so you only have to edit once.
  * Version:     1.7.2
- * Author:      MIGHTYminnow
+ * Author:      McGuive7, MIGHTYminnow
  * Author URI:  http://mightyminnow.com
  * License:     GPLv2+
  */
