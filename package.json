@@ -1,0 +1,22 @@
+{
+  "title": "Widget Alias",
+  "description": "Duplicate any existing widget using the Widget Alias widget and shortcode.",
+  "version": "1.7.2",
+  "homepage": "http://wordpress.org/plugins/widget-alias",
+  "author": {
+    "name": "Mickey Kay",
+    "email": "mickey@mickeykaycreative.com",
+    "url": "http://mickeykaycreative.com?utm_source=widget-alias&utm_medium=plugin-repo&utm_campaign=WordPress%20Plugins"
+  },
+  "devDependencies": {
+    "grunt": "latest",
+    "load-grunt-tasks": "latest",
+    "grunt-dev-update": "latest",
+    "grunt-prompt": "latest",
+    "grunt-text-replace": "latest",
+    "grunt-wp-readme-to-markdown": "latest",
+    "grunt-wp-i18n": "latest",
+    "grunt-contrib-copy": "^0.7.0"
+  },
+  "keywords": []
+}
