@@ -30,7 +30,7 @@ In *Appearances > Widgets* you'll see a new widget called "Widget Alias", in whi
 
 **2. Shortcode**  
 Widget Alias also comes packaged with a shortcode that looks like this:
-`[wa id="target-widget-id" title="Override Title"]`
+`[widget_alias id="target-widget-id" title="Override Title"]`
 
 To use the shortcode simply enter the ID of the widget you would like to alias (`id` parameter), and an override title (`title` parameter) if you would like to change the aliased widget's title.
 
@@ -49,6 +49,11 @@ Install and activate the plugin. That's it! You'll now have access to the Widget
 1. Widget Alias Features
 
 == Changelog ==
+
+= 1.7.2 =
+* Update jQuery to show widget ID's in the customizer.
+* Enqueue scripts and styles only on the widgets and customizer pages.
+* Refactor code to enclose previously global variables/functions, and prefix all functions.
 
 = 1.7.1 =
 * Fix deprecated widget constructor call.
@@ -80,6 +85,11 @@ Install and activate the plugin. That's it! You'll now have access to the Widget
 * First release
 
 == Upgrade Notice ==
+
+= 1.7.2 =
+* Update jQuery to show widget ID's in the customizer.
+* Enqueue scripts and styles only on the widgets and customizer pages.
+* Refactor code to enclose previously global variables/functions, and prefix all functions.
 
 = 1.7.1 =
 * Fix deprecated widget constructor call.
