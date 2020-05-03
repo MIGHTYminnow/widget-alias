@@ -3,7 +3,7 @@ Contributors:      McGuive7, MIGHTYminnow
 Donate link:       http://mightyminnow.com
 Tags:              duplicate, widget, alias, reproduce, synchronize, mimic, sidebar, widgets, shortcode, specific, multiple
 Requires at least: 3.0
-Tested up to:      4.4
+Tested up to:      5.4
 Stable tag:        1.7.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
