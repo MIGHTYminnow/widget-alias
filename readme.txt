@@ -3,7 +3,7 @@ Contributors:      McGuive7, MIGHTYminnow
 Donate link:       http://mightyminnow.com
 Tags:              duplicate, widget, alias, reproduce, synchronize, mimic, sidebar, widgets, shortcode, specific, multiple
 Requires at least: 3.0
-Tested up to:      5.7.2
+Tested up to:      5.7.3
 Stable tag:        1.7.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
@@ -49,6 +49,9 @@ Install and activate the plugin. That's it! You'll now have access to the Widget
 1. Widget Alias Features
 
 == Changelog ==
+
+= 1.7.3 =
+* Fix deprecated "ready" event.
 
 = 1.7.2 =
 * Update jQuery to show widget ID's in the customizer.
