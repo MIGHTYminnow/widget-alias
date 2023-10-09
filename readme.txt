@@ -3,7 +3,7 @@ Contributors:      McGuive7, MIGHTYminnow
 Donate link:       http://mightyminnow.com
 Tags:              duplicate, widget, alias, reproduce, synchronize, mimic, sidebar, widgets, shortcode, specific, multiple
 Requires at least: 3.0
-Tested up to:      6.2
+Tested up to:      6.3.1
 Stable tag:        1.7.3
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
@@ -12,7 +12,7 @@ Duplicate any existing widget using the Widget Alias widget and shortcode.
 
 == Description ==
 
-**Compatible with PHP 8.0**
+**Compatible with PHP 8.2**
 
 Widget Alias allows you to create an "alias" of any existing widget, effectively reproducing / duplicating it. This can be especially handy when you want the same widget to appear in multiple sidebars. Normally you would have to edit each widget independently, but Widget Alias means you'll only have to edit one.
 
