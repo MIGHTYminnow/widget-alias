@@ -48,6 +48,12 @@ Banner photo by [Susannah Kay](http://susannahkay.com).
 == Installation ==
 Install and activate the plugin. That's it! You'll now have access to the Widget Alias widget via *Appearance > Widgets*, as well as the `[wa]` shortcode.
 
+== Frequently Asked Questions ==
+
+**How can I report security bugs?**
+
+You can report security bugs through the Patchstack Vulnerability Disclosure Program. The Patchstack team help validate, triage and handle any security vulnerabilities. [Report a security vulnerability.](https://patchstack.com/database/vdp/widget-alias)
+
 == Screenshots ==
 1. Widget Alias Features
 
